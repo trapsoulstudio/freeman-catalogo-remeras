@@ -2,6 +2,9 @@ import { X, Plus, Minus, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
 interface CartProps {
   open: boolean;
@@ -18,6 +21,7 @@ const COLOR_NAMES: Record<string, string> = {
 
 const Cart = ({ open, onClose }: CartProps) => {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart();
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('pickup');
 
   const handleWhatsAppOrder = () => {
     if (items.length === 0) return;
@@ -31,7 +35,11 @@ const Cart = ({ open, onClose }: CartProps) => {
       )
       .join('\n');
 
-    const fullMessage = `¡Hola! Quiero encargar estas remeras:\n\n${message}\n\n*Total: $${total}*`;
+    const deliveryInfo = deliveryMethod === 'delivery' 
+      ? '\n📦 *Envío a domicilio*'
+      : '\n📍 *Retiro en: San Alberto 1336, Barrio San Vicente*';
+
+    const fullMessage = `¡Hola! Quiero encargar estas remeras:\n\n${message}\n\n*Total: $${total}*${deliveryInfo}`;
     
     // Replace with actual WhatsApp number
     const phoneNumber = '5491112345678'; // Format: country code + area code + number
@@ -104,6 +112,24 @@ const Cart = ({ open, onClose }: CartProps) => {
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span>Total:</span>
                   <span>${total}</span>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Método de entrega</Label>
+                  <RadioGroup value={deliveryMethod} onValueChange={(value) => setDeliveryMethod(value as 'delivery' | 'pickup')}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="pickup" id="pickup" />
+                      <Label htmlFor="pickup" className="font-normal cursor-pointer">
+                        Retiro en Barrio San Vicente (San Alberto 1336)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="delivery" id="delivery" />
+                      <Label htmlFor="delivery" className="font-normal cursor-pointer">
+                        Envío a domicilio
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
 
                 <Button
